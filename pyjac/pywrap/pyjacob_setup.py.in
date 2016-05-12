@@ -1,4 +1,3 @@
-#! /usr/bin/env python2.7
 from distutils.core import setup, Extension
 import distutils.ccompiler
 
@@ -10,7 +9,7 @@ import os
 sources = ['$homepath/pyjacob_wrapper.pyx']
 includes = ['$buildpath/']
 
-distutils.ccompiler.CCompiler.compile = pcc.parallelCompile
+distutils.ccompiler.CCompiler.compile = pcc.parallel_compile
 
 ext_modules=[Extension("pyjacob",
      sources=sources,

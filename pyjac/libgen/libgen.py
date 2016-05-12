@@ -1,5 +1,6 @@
 """Module used to create a shared/static library from pyJac files.
 """
+from __future__ import print_function
 
 import shutil
 import re
@@ -23,7 +24,7 @@ cmd_compile = dict(c='gcc',
 
 
 def cmd_lib(lang, shared):
-    """Returns the appropriate compilation command for creation of the library based on the 
+    """Returns the appropriate compilation command for creation of the library based on the
     language and shared flag"""
     if lang == 'c':
         return ['ar', 'rcs'] if not shared else ['gcc', '-shared']
@@ -33,13 +34,13 @@ def cmd_lib(lang, shared):
         return ['ar', 'rcs'] if not shared else ['icc', '-shared']
 
 
-includes = dict(c=[], icc=[],
+includes = dict(c=['/usr/local/include/'], icc=['/usr/local/include/'],
                 cuda=['/usr/local/cuda/include/',
                       '/usr/local/cuda/samples/common/inc/'
                       ]
                 )
 
-flags = dict(c=['-std=c99', '-O3', '-mtune=native', '-fopenmp'],
+flags = dict(c=['-std=c99', '-O3', '-mtune=native'],
              icc=['-std=c99', '-O3', '-xhost', '-fp-model', 'precise', '-ipo'],
              cuda=['-O3', '-arch=sm_20']
              )
@@ -49,7 +50,7 @@ shared_flags = dict(c=['-fPIC'],
                     cuda=['-Xcompiler', '"-fPIC"']
                     )
 
-libs = dict(c=['-lm', '-std=c99', '-fopenmp'],
+libs = dict(c=['-lm', '-std=c99'],
             cuda=['-lcudart'],
             icc=['-m64', '-ipo', '-lm', '-std=c99']
             )
@@ -66,7 +67,7 @@ def which(file):
 
 
 def compiler(fstruct):
-    """Given a file structure, this method will compile the source file for the 
+    """Given a file structure, this method will compile the source file for the
     language and options specified
 
     Parameters
@@ -175,9 +176,9 @@ def libgen(lang, obj_dir, out_dir, filelist, shared, auto_diff):
 
     #remove the old library
     if os.path.exists(os.path.join(out_dir, libname + lib_ext(shared))):
-        os.path.join(out_dir, libname + lib_ext(shared))
+        os.remove(os.path.join(out_dir, libname + lib_ext(shared)))
     if os.path.exists(os.path.join(out_dir, libname + lib_ext(not shared))):
-        os.path.join(out_dir, libname + lib_ext(not shared))
+        os.remove(os.path.join(out_dir, libname + lib_ext(not shared)))
 
     libname += lib_ext(shared)
 
@@ -268,7 +269,7 @@ def get_file_list(source_dir, pmod, lang, FD=False, AD=False):
         List of include directories
     files : list of `str`
         List of files
-        
+
     """
     i_dirs = [source_dir]
     if AD:
@@ -340,14 +341,14 @@ def generate_library(lang, source_dir, obj_dir=None,
     """
     #check lang
     if lang not in flags.keys():
-        print 'Cannot generate library for unknown language {}'.format(lang)
+        print('Cannot generate library for unknown language {}'.format(lang))
         sys.exit(-1)
 
     if shared is None:
         shared = lang != 'cuda'
 
     if lang == 'cuda' and shared:
-        print 'CUDA does not support linking of shared device libraries.'
+        print('CUDA does not support linking of shared device libraries.')
         sys.exit(-1)
 
     build_lang = lang if lang != 'icc' else 'c'

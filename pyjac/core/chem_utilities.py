@@ -25,18 +25,23 @@ PA = 101325.0
 
 
 class CommonEqualityMixin(object):
+    """Base class for `ReacInfo` and `SpecInfo` classes for equality comparison
+    """
     def __eq__(self, other):
         try:
-            for key, value in self.__dict__.iteritems():
+            for key, value in self.__dict__.items():
                 if not key in other.__dict__:
                     return False
                 if isinstance(value, np.ndarray):
                     if not np.array_equal(value, other.__dict__[key]):
                         return False
+                elif isinstance(value, list):
+                    if not all([any(x == y for y in other.__dict__[key]) for x in value]):
+                        return False
                 elif value != other.__dict__[key]:
                     return False
             return True
-        except Exception, e:
+        except Exception as e:
             return False
 
     def __ne__(self, other):

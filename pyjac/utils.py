@@ -72,8 +72,8 @@ def get_species_mappings(num_specs, last_species):
 
     """
 
-    fwd_species_map = range(num_specs)
-    back_species_map = range(num_specs)
+    fwd_species_map = list(range(num_specs))
+    back_species_map = list(range(num_specs))
 
     #in the forward mapping process
     #last_species -> end
@@ -354,12 +354,12 @@ def get_parser():
                                 Species in moles'
                         )
     # cuda specific
-    parser.add_argument('-nco', '--no-cache-optimizer',
+    parser.add_argument('-co', '--cache-optimizer',
                         dest='cache_optimizer',
-                        action='store_false',
-                        default=True,
-                        help='Do not attempt to optimize cache store/loading '
-                             'via use of a greedy selection algorithm.'
+                        action='store_true',
+                        default=False,
+                        help='Attempt to optimize cache store/loading '
+                             'via use of a greedy selection algorithm. (Experimental)'
                         )
     parser.add_argument('-nosmem', '--no-shared-memory',
                         dest='no_shared',

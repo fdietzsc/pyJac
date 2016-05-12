@@ -14,10 +14,10 @@ import itertools
 from .. import utils
 from . import chem_utilities as chem
 
-def write_mechanism_initializers(path, lang, specs, reacs, initial_conditions='',
-                                 old_spec_order=None, old_rxn_order=None,
-                                 cache_optimized=False, last_spec=None,
-                                 auto_diff=False):
+def write_mechanism_initializers(path, lang, specs, reacs,
+                                 fwd_spec_mapping, back_spec_mapping,
+                                 initial_conditions='', cache_optimized=False,
+                                 last_spec=None, auto_diff=False):
     """Writes mechanism-specific files.
 
     Parameters
@@ -30,13 +30,13 @@ def write_mechanism_initializers(path, lang, specs, reacs, initial_conditions=''
         List of species in the mechanism.
     reacs : list of `ReacInfo`
         List of reactions in the mechanism.
+    fwd_spec_mapping : list of int
+        A mapping of the original mechanism to the new species order
+    back_spec_mapping : list of int
+        A mapping of the new species order to the original mechanism
     initial_conditions : Optional[str]
         A comma separated list of the initial conditions to use in form
         T,P,X (e.g. '800,1,H2=1.0,O2=0.5'). Temperature in K, P in atm.
-    old_spec_order : Optional[list of int]
-        A mapping of the new species order to the original mechanism
-    old_rxn_order : Optional[list of int]
-        A mapping of the new reaction order to the original mechanism
     cache_optimized : Optional[bool]
         If ``True``, use the greedy optimizer to attempt to improve cache hit rates
     last_spec : Optional[str]
@@ -134,12 +134,12 @@ void eval_jacob(const double t, const double p, const double* y,
         file.write('//last_spec {}\n'.format(last_spec))
 
         # convience: write species indexes
-        file.write('/* Species Indexes\n'
-                   '\n'.join('{}  {}'.format(i, spec.name)
+        file.write('/* Species Indexes\n')
+        file.write('\n'.join('{}  {}'.format(i, spec.name)
                              for i, spec in enumerate(specs)
-                             ) + 
-                   '*/\n\n'
+                             )
                    )
+        file.write('*/\n\n')
 
         file.write('//Number of species\n'
                    '#define NSP {}\n'.format(len(specs)) +
@@ -173,10 +173,6 @@ void eval_jacob(const double t, const double p, const double* y,
 
         file.write('#endif\n\n')
 
-    reversed_specs = []
-    for i in range(len(specs)):
-        reversed_specs.append(old_spec_order.index(i))
-
     # now the mechanism file
     with open(os.path.join(path, 'mechanism' + utils.file_ext[lang]), 'w') as file:
         file.write(
@@ -193,8 +189,8 @@ void eval_jacob(const double t, const double p, const double* y,
             file.write('        double temp [NSP];\n'
                        '        memcpy(temp, y_specs, NSP * sizeof(double));\n'
                        )
-            for i, spec in enumerate(old_spec_order):
-                file.write('        y_specs[{0}] = temp[{1}];\n'.format(spec, i))
+            for i, spec in enumerate(fwd_spec_mapping):
+                file.write('        y_specs[{0}] = temp[{1}];\n'.format(i, spec))
         file.write('    }\n')
 
         file.write('    //reverse masking of ICs for cache optimized mechanisms\n')
@@ -203,8 +199,8 @@ void eval_jacob(const double t, const double p, const double* y,
             file.write('        double temp [NSP];\n'
                        '        memcpy(temp, y_specs, NSP * sizeof(double));\n'
                        )
-            for i, spec in enumerate(reversed_specs):
-                file.write('        y_specs[{0}] = temp[{1}];\n'.format(spec, i))
+            for i, spec in enumerate(back_spec_mapping):
+                file.write('        y_specs[{0}] = temp[{1}];\n'.format(i, spec))
         file.write('    }\n')
 
         needed_arr = ['y', 'var']
@@ -343,7 +339,7 @@ void eval_jacob(const double t, const double p, const double* y,
                        '  //returns the total required size for the mechanism per thread\n'
                        '  size_t mech_size = 0;\n'
                        )
-            for array, size in gpu_memory.iteritems():
+            for array, size in gpu_memory.items():
                 file.write('  //{}\n'.format(array) +
                            '  mech_size += {};\n'.format(size)
                            )
@@ -365,7 +361,7 @@ void eval_jacob(const double t, const double p, const double* y,
                 '  //allocate the device arrays on the host pointer\n'
                 )
 
-            for array, size in gpu_memory.iteritems():
+            for array, size in gpu_memory.items():
                 file.write(
                     err_check.format(
                     'cudaMalloc(&((*h_mem)->{}), {}'.format(array, size) +
@@ -418,7 +414,8 @@ void eval_jacob(const double t, const double p, const double* y,
     '#include <helper_cuda.h>\n'
     '\n'
     '#define GRID_DIM (blockDim.x * gridDim.x)\n'
-    '#define INDEX(i) (threadIdx.x + blockDim.x * blockIdx.x + (i) * GRID_DIM)\n'
+    '#define T_ID (threadIdx.x + blockIdx.x * blockDim.x)\n'
+    '#define INDEX(i) (T_ID + (i) * GRID_DIM)\n'
     '\n'
     )
 

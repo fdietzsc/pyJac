@@ -58,6 +58,8 @@ class variable(object):
 
 
 class shared_memory_manager(object):
+    """Manager for GPU shared memory.
+    """
     def __init__(self, blocks_per_sm=8, num_threads=64, L1_PREFERRED=True):
         """Creates a shared memory manager
 
@@ -99,7 +101,7 @@ class shared_memory_manager(object):
         `on_eviction` function will be called on each evicted entry.
 
         """
-        key_copy = [x for x in self.shared_dict.iterkeys()]
+        key_copy = [x for x in self.shared_dict.keys()]
         for shared_index in key_copy:
             self.evict(shared_index)
 
@@ -169,7 +171,7 @@ class shared_memory_manager(object):
 
         """
         self.shared_dict = {}
-        self.shared_indexes = range(self.shared_per_thread)
+        self.shared_indexes = list(range(self.shared_per_thread))
         self.eviction_marking = [False for x in range(self.shared_per_thread)]
         self.on_eviction = None
 
@@ -223,7 +225,7 @@ class shared_memory_manager(object):
         old_index = []
         old_variables = []
         if len(self.shared_dict):
-            old_index, old_variables = zip(*self.shared_dict.iteritems())
+            old_index, old_variables = zip(*self.shared_dict.items())
 
         #update all the old variables usage counts
         for x in old_variables:
@@ -231,7 +233,7 @@ class shared_memory_manager(object):
 
         #check for self_eviction
         if self.self_eviction_strategy is not None:
-            for ind, val in self.shared_dict.iteritems():
+            for ind, val in self.shared_dict.items():
                 #if qualifies for self eviction and not in current set
                 if self.self_eviction_strategy(val) and not val in variables:
                     self.eviction_marking[ind] = True
@@ -253,7 +255,7 @@ class shared_memory_manager(object):
                 var = thevar
                 usage = None
             #don't re-add if it's already in
-            if not var in self.shared_dict.itervalues():
+            if not var in self.shared_dict.values():
                 #skip barely used ones
                 if usage <= 1:
                     continue
@@ -269,12 +271,12 @@ class shared_memory_manager(object):
         if estimated_usage:
             # add any usage = 1 ones if space
             for var, usage in variables:
-                if not var in self.shared_dict.itervalues():
+                if not var in self.shared_dict.values():
                     if len(self.shared_dict) < self.shared_per_thread:
                         self.add_to_dictionary(var)
         if load is True:
             # need to write loads for any new vars
-            for ind, val in self.shared_dict.iteritems():
+            for ind, val in self.shared_dict.items():
                 if not val in old_variables:
                     file.write(' ' * indent + self.__get_string(ind) +
                                ' = ' + val.to_string() +
@@ -282,7 +284,7 @@ class shared_memory_manager(object):
                                )
 
         return {k:(v not in old_variables)
-                for k, v in self.shared_dict.iteritems()
+                for k, v in self.shared_dict.items()
                 }
 
     def mark_for_eviction(self, variables):
@@ -295,7 +297,7 @@ class shared_memory_manager(object):
 
         """
         self.eviction_marking = [var in variables for var in
-                                 self.shared_dict.itervalues()
+                                 self.shared_dict.values()
                                  ]
 
     def __get_string(self, index):
@@ -336,7 +338,7 @@ class shared_memory_manager(object):
             Variable found in internal dictionary
 
         """
-        our_ind, our_var = next((val for val in self.shared_dict.iteritems()
+        our_ind, our_var = next((val for val in self.shared_dict.items()
                                 if val[1] == var), (None, None)
                                 )
         return our_ind, our_var
