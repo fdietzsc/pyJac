@@ -11,13 +11,10 @@
         y_specs[3] = temp[3];
         y_specs[4] = temp[4];
         y_specs[5] = temp[5];
-        y_specs[6] = temp[6];
-        y_specs[7] = temp[7];
-        y_specs[8] = temp[8];
-        y_specs[9] = temp[9];
-        y_specs[10] = temp[10];
-        y_specs[12] = temp[11];
-        y_specs[11] = temp[12];
+        y_specs[6] = temp[7];
+        y_specs[7] = temp[8];
+        y_specs[8] = temp[9];
+        y_specs[9] = temp[6];
     }
     //reverse masking of ICs for cache optimized mechanisms
     void apply_reverse_mask(double* y_specs) {
@@ -29,13 +26,10 @@
         y_specs[3] = temp[3];
         y_specs[4] = temp[4];
         y_specs[5] = temp[5];
-        y_specs[6] = temp[6];
-        y_specs[7] = temp[7];
-        y_specs[8] = temp[8];
-        y_specs[9] = temp[9];
-        y_specs[10] = temp[10];
-        y_specs[12] = temp[11];
-        y_specs[11] = temp[12];
+        y_specs[6] = temp[9];
+        y_specs[7] = temp[6];
+        y_specs[8] = temp[7];
+        y_specs[9] = temp[8];
     }
 void set_same_initial_conditions(int NUM, double** y_host, double** var_host) 
 {

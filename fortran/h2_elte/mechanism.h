@@ -2,41 +2,28 @@
 #define MECHANISM_h
 
 #include <string.h>
-//last_spec 11
-0  H/* Species Indexes
-
-1  H2/* Species Indexes
-
-2  O/* Species Indexes
-
-3  OH/* Species Indexes
-
-4  H2O/* Species Indexes
-
-5  CO/* Species Indexes
-
-6  HCO/* Species Indexes
-
-7  O2/* Species Indexes
-
-8  HO2/* Species Indexes
-
-9  H2O2/* Species Indexes
-
-10  CO2/* Species Indexes
-
-11  HE/* Species Indexes
-
-12  N2*/
+//last_spec 6
+/* Species Indexes
+0  H
+1  H2
+2  O
+3  O2
+4  OH
+5  H2O
+6  HO2
+7  H2O2
+8  HE
+9  N2
+*/
 
 //Number of species
-#define NSP 13
+#define NSP 10
 //Number of variables. NN = NSP + 1 (temperature)
-#define NN 14
+#define NN 11
 //Number of forward reactions
-#define FWD_RATES 23
+#define FWD_RATES 21
 //Number of reversible reactions
-#define REV_RATES 23
+#define REV_RATES 21
 //Number of reactions with pressure modified rates
 #define PRES_MOD_RATES 6
 
