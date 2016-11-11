@@ -360,7 +360,7 @@ def write_rxn_rates(path, lang, specs, reacs, fwd_rxn_mapping,
             line = ('#ifndef RATES_HEAD_{0}\n'
                    '#define RATES_HEAD_{0}\n'
                    '\n'
-                   '#include "../header{1}"\n'
+                   '#include "header{1}"\n'
                    '\n'
                    ).format(rate_count, utils.header_ext[lang])
             file.write(line)
@@ -407,8 +407,7 @@ def write_rxn_rates(path, lang, specs, reacs, fwd_rxn_mapping,
             file.write('#include "rates/rates_include{}"\n'.format(utils.header_ext[lang]))
 
         if lang in ['c', 'cuda']:
-            file.write('#include "{}{}rates'.format(
-                            '../' if rate_count is not None else '',
+            file.write('#include "{}rates'.format(
                             file_prefix)
                         + utils.header_ext[lang] + '"\n')
             if auto_diff:
@@ -1336,8 +1335,8 @@ def write_spec_rates(path, lang, specs, reacs, fwd_spec_mapping,
     if lang in ['c', 'cuda']:
         file.write('#include "header{}"\n'.format(utils.header_ext[lang])
                    )
-        if lang == 'cuda' and smm is not None:
-            file.write('#include <assert.h>\n')
+        #if lang == 'cuda' and smm is not None:
+        #    file.write('#include <assert.h>\n')
         if auto_diff:
             file.write('#include "adept.h"\n'
                        'using adept::adouble;\n')
@@ -1399,9 +1398,9 @@ def write_spec_rates(path, lang, specs, reacs, fwd_spec_mapping,
         return shared.variable('sp_rates', sp) if sp + 1 != len(specs) \
             else shared.variable('(*dy_N)', None)
 
-    if lang == 'cuda' and smm is not None:
-        file.write('  assert(threadIdx.x + {} * blockDim.x < {});\n'.format(
-            smm.shared_per_thread - 1, smm.shared_per_block))
+    #if lang == 'cuda' and smm is not None:
+    #    file.write('  assert(threadIdx.x + {} * blockDim.x < {});\n'.format(
+    #        smm.shared_per_thread - 1, smm.shared_per_block))
     first_use = [True for spec in specs]
     first_smem_use = {}
     seen = [False for spec in specs]

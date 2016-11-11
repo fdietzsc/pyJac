@@ -115,11 +115,13 @@ void eval_jacob(const double t, const double p, const double* y,
                    )
 
         if lang == 'cuda':
-            file.write('#include <cuda.h>\n'
+            file.write('#ifdef __GNUG__\n'
+                       '#include <cuda.h>\n'
                        '#include <cuda_runtime.h>\n'
                        '#include <helper_cuda.h>\n'
                        '#include "launch_bounds.cuh"\n'
                        '#include "gpu_macros.cuh"\n'
+                       '#endif\n'
                        )
             file.write('\nstruct mechanism_memory {\n')
             for array in gpu_memory:
@@ -139,7 +141,7 @@ void eval_jacob(const double t, const double p, const double* y,
                              for i, spec in enumerate(specs)
                              )
                    )
-        file.write('*/\n\n')
+        file.write('\n*/\n\n')
 
         file.write('//Number of species\n'
                    '#define NSP {}\n'.format(len(specs)) +
