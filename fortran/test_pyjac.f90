@@ -11,16 +11,18 @@ program test_pyjac
   real(8), allocatable :: X(:)
   real(8), allocatable :: Y(:)
   real(8), allocatable :: omega(:)
+  real(8), allocatable :: jac(:,:)
   real(8) :: T = 1000.0D0
   real(8) :: P = 101325.0
   real(8) :: rho = 0.0
-  integer :: i
+  integer :: i,j
 
   allocate(hi(nspec))
   allocate(cpi(nspec))
   allocate(X(nspec))
   allocate(Y(nspec))
-  allocate(omega(nspec))
+  allocate(omega(nspec+1))
+  allocate(jac(nspec+1,nspec+1))
 
   ! get hi and cpi
   call compute_hi(T,hi)
@@ -64,11 +66,24 @@ program test_pyjac
   end do
   ! source terms
   print*,''
+  print*,'Test source term'
   Y(1) = T ! first entry should be temperature
   call reaction_rates(T,P,Y,omega)
   do i=1,nspec
     print'(2es12.5)',Y(i),omega(i)
   end do
+
+  ! jacobian
+  print*,''
+  print*,'Test jacobian'
+  Y(1) = T ! first entry should be temperature
+  call jacobian(T,P,Y,jac)
+  do i=1,nspec
+    print'(11(es12.5,x))',Y(i),(jac(i,j),j=1,nspec)
+  end do
+
+  print*,''
+  print*,jac
 
 
 end program test_pyjac

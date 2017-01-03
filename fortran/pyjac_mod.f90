@@ -70,4 +70,18 @@ module pyjac_mod
     end subroutine reaction_rates
   end interface
 
+  interface
+    subroutine jacobian(T,P,Y,jac) bind(c,name='eval_jacob')
+      use iso_c_binding
+      ! value keyword important, because usually
+      ! fortran passes by reference, but pyjac
+      ! requires value to be passed
+      real(kind=c_double), intent(in   ), value :: T
+      real(kind=c_double), intent(in   ), value :: P
+      real(kind=c_double), intent(in   ) :: Y(*)
+      ! remember omega(1) is source term for temperature
+      real(kind=c_double) :: jac(*)
+    end subroutine jacobian
+  end interface
+
 end module pyjac_mod

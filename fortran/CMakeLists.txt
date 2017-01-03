@@ -53,6 +53,7 @@ message(STATUS "Using mechanism: " ${MECH})
 #  pyjac sources
 #===========================================
 include_directories(${MECH})
+include_directories(${MECH}/jacobs)
 set_source_files_properties("${MECH}/mechanism.c" PROPERTIES LANGUAGE CXX)
 FILE(GLOB pyjac_src "${MECH}/*.c")
 #===========================================
