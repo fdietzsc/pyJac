@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
  - Added CHANGELOG
+ - Added documentation for libgen / pywrap features
 
 ### Changed
  - Minor compilation fixes for including OpenMP
